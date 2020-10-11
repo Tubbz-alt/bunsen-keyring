@@ -8,6 +8,7 @@ variables:
   PythonVersion: '3.8'
   DockerBuildVersion: '1.0.1'
   DockerVersion: '17.09.0-ce'
+  PackageVersion: '0.0.0'
 
 steps:
   - task: UsePythonVersion@0
@@ -26,8 +27,20 @@ steps:
   - script: $(pyTools.pythonLocation)/bin/pip install https://github.com/BunsenLabs/dockerbuild/releases/download/$(DockerBuildVersion)/dockerbuild-$(DockerBuildVersion)-py3-none-any.whl
     displayName: Install dockerbuild wheel
 
-  - script: mkdir -p $(Build.SourcesDirectory)/out
-    displayName: Create .deb package output directory
-
-  - script: $(pyTools.pythonLocation)/bin/dockerbuild build -s $(Build.SourcesDirectory) -a amd64 -o $(Build.SourcesDirectory)/out -t 7200
+  - script: $(pyTools.pythonLocation)/bin/dockerbuild build -s $(Build.SourcesDirectory) -a amd64 -o $(Build.ArtifactStagingDirectory) -t 7200
     displayName: Build .deb package
+
+  - script: |
+      package_version=`head -n1 $(Build.SourcesDirectory)/debian/changelog | cut -d' ' -f2 | tr -d '()'`
+      echo "##vso[task.setvariable variable=PackageVersion]$package_version"
+    displayName: Export package version from debian/changelog
+
+  - task: UniversalPackages@0
+    inputs:
+      command: 'publish'
+      publishDirectory: '$(Build.ArtifactStagingDirectory)'
+      feedsToUsePublish: 'internal'
+      vstsFeedPublish: '94f9b627-2fde-44fa-a54d-7cf14d37c1a3/a8d74501-7285-427f-9673-508c6169b38b'
+      vstsFeedPackagePublish: 'bunsen-keyring'
+      versionOption: 'custom'
+      versionPublish: $[variables.PackageVersion]
