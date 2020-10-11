@@ -8,7 +8,6 @@ variables:
   PythonVersion: '3.8'
   DockerBuildVersion: '1.0.1'
   DockerVersion: '17.09.0-ce'
-  PackageVersion: '0.0.0'
 
 steps:
   - task: UsePythonVersion@0
@@ -43,4 +42,4 @@ steps:
       vstsFeedPublish: '94f9b627-2fde-44fa-a54d-7cf14d37c1a3/a8d74501-7285-427f-9673-508c6169b38b'
       vstsFeedPackagePublish: 'bunsen-keyring'
       versionOption: 'custom'
-      versionPublish: $[variables.PackageVersion]
+      versionPublish: $(PackageVersion)
