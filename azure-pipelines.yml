@@ -30,7 +30,7 @@ steps:
     displayName: Build .deb package
 
   - script: |
-      package_version=`head -n1 debian/changelog | cut -d' ' -f2 | tr -d '()' | tr '-' '.'`
+      package_version=`head -n1 debian/changelog | cut -d' ' -f2 | tr -d '()' | tr '+' '-' | sed  's/-\([0-9]\+\)$/.\1/'`
       echo "##vso[task.setvariable variable=PackageVersion]$package_version"
     displayName: Export package version from debian/changelog
 
